@@ -1,8 +1,115 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import Nav from '../Nav/Nav';
 import styled from 'styled-components';
 import GoogleLogo from '../resources/google-icon.svg';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+import axios from 'axios';
+import { UserContext } from '../UserContext';
+
+
+
+const SignUp = () => {
+
+    let history = useHistory();
+
+    let {user, setUser} = useContext(UserContext);
+
+    if(user.loggedIn) history.push('/dashboard');
+
+    let [credentials, setCredentials] = useState({
+        email: '',
+        username: '',
+        password: ''
+    })
+
+    let [validation, setValidation] = useState({
+        emailError: '',
+        usernameError: '',
+        passwordError: ''
+    })
+
+    let [loading, setLoading] = useState(false);
+
+    const handleChange = (e) => {
+
+
+        setValidation({
+            emailError: '',
+            usernameError: '',
+            passwordError: ''
+        });
+
+        if(e.target.name === 'confirm password') {
+            setValidation({
+                ...validation,
+                passwordError: e.target.value === credentials.password ? '' : 'passwords do not match'
+            })
+        }
+
+        setCredentials({
+            ...credentials,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    const submit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        await axios.post('http://localhost:5000/api/user/register', credentials)
+            .then(res => {
+                console.log(res.data);
+                if(res.data === 'username is taken') {
+                    setValidation({
+                        ...validation,
+                        usernameError: 'this username is already taken'
+                    })
+                    setLoading(false)
+                    return null;
+                } else if (res.data === 'email is taken') {
+                    setValidation({
+                        ...validation,
+                        emailError: 'user with provided email already exists'
+                    })
+                    setLoading(false)
+                    return null;
+                }
+
+                setLoading(false);
+            }).catch(err => {
+                console.log(err);
+            })
+
+        history.push('/auth/login');
+
+    }
+
+    return (
+        <div>
+        <Nav/>
+        <Container>
+           <Form onSubmit={submit}>
+                <Label>sign up</Label>
+                <Input type="email" placeholder="email" name="email" onChange={handleChange}></Input>
+                {validation.emailError && <ErrorMessage>{validation.emailError}</ErrorMessage>}
+                <Input type="text" placeholder="username" name="username" onChange={handleChange}></Input>
+                {validation.usernameError && <ErrorMessage>{validation.usernameError}</ErrorMessage>}
+                <Input type="password" placeholder="password" name="password" onChange={handleChange}></Input>
+                <Input type="password" placeholder="confirm password" name="confirm password" onChange={handleChange}></Input>
+                {validation.passwordError && <ErrorMessage>{validation.passwordError}</ErrorMessage>}
+                <SignUpButton>sign up</SignUpButton>
+                <Other>- or sign up with -</Other>
+                <Google name="google">
+                    <img name="google" src={GoogleLogo} alt="Google"></img>
+                </Google>
+                <LogIn>already have an account? <AuthLink><Link to="/auth/login">log in</Link></AuthLink></LogIn>
+                
+           </Form>
+        </Container>
+        </div>
+    );
+};
+
+export default SignUp;
 
 let Container = styled.div`
     color: white;
@@ -62,7 +169,7 @@ let SignUpButton = styled.button`
     &:focus, &:hover {
         color: white;
         outline: none;
-        background-color: rgba(0,171,131,1);
+        background-color: darkmagenta;
     }
 `
 
@@ -113,29 +220,11 @@ let AuthLink = styled.div`
     }
 `
 
-const SignUp = () => {
-
-    return (
-        <div>
-        <Nav/>
-        <Container>
-           <Form>
-                <Label>sign up</Label>
-                <Input type="email" placeholder="email"></Input>
-                <Input type="text" placeholder="username"></Input>
-                <Input type="password" placeholder="password"></Input>
-                <Input type="password" placeholder="confirm password"></Input>
-                <SignUpButton>sign up</SignUpButton>
-                <Other>- or sign up with -</Other>
-                <Google name="google">
-                    <img name="google" src={GoogleLogo} alt="Google"></img>
-                </Google>
-                <LogIn>already have an account? <AuthLink><Link to="/auth/login">log in</Link></AuthLink></LogIn>
-                
-           </Form>
-        </Container>
-        </div>
-    );
-};
-
-export default SignUp;
+let ErrorMessage = styled.p`
+    color: red;
+    font-size: 0.8rem;
+    font-weight: 300;
+    background-color: rgba(255,255,255,1);
+    padding: 5px 20px;
+    border-radius: 10px;
+`

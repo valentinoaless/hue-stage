@@ -1,10 +1,13 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const authRoute = require('./routes/auth');
-
+const communityRoute = require('./routes/community');
 dotenv.config();
+
+app.use(cors());
 
 mongoose.connect(process.env.DB_URL, {useNewUrlParser: true})
 .then((res) => {
@@ -16,5 +19,6 @@ mongoose.connect(process.env.DB_URL, {useNewUrlParser: true})
 app.use(express.json());
 
 app.use('/api/user', authRoute);
+app.use('/api', communityRoute);
 
 app.listen(5000);
