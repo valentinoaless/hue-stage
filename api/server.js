@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const authRoute = require('./routes/auth');
 const communityRoute = require('./routes/community');
+const setRoute = require('./routes/set');
 dotenv.config();
 
 app.use(cors());
@@ -19,6 +20,8 @@ mongoose.connect(process.env.DB_URL, {useNewUrlParser: true})
 app.use(express.json());
 
 app.use('/api/user', authRoute);
+app.use('/api/user/set', setRoute);
 app.use('/api', communityRoute);
 
-app.listen(5000);
+
+app.listen(process.env.PORT || 5000);

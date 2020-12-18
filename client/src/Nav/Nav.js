@@ -3,7 +3,6 @@ import styled, { keyframes } from 'styled-components';
 import { Link, useHistory } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import userIcon from '../resources/account_circle-24px.svg';
-import axios from 'axios'
 
 const Nav = (props) => {
 
@@ -13,15 +12,8 @@ const Nav = (props) => {
 
     let [dropDownActive, setDropDownActive] = useState(false);
 
-    let loadUser = () => {
-
-        axios.get('http://localhost:5000/api/user', )
-
-    }
-
     useEffect(()=>{
         document.addEventListener("mousedown", handleClick);
-
         return () => {document.removeEventListener("mousedown", handleClick)};
     },[]);
 
@@ -39,12 +31,16 @@ const Nav = (props) => {
     const logOut = () => {
         console.log('log out')
         localStorage.clear();
-        setUser({
-            ...user, 
+        let resetUser = {
+            username: '',
+            token: '',
             loggedIn: false
-        });
+        }
         history.push('/');
+        setUser({...resetUser});
     }
+
+    
 
     return (
         <Navbar home={props.home}>

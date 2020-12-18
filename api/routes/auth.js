@@ -67,6 +67,17 @@ router.get('/', verify, async (req, res) => {
     });
 
     console.log(req.user);
+})
+
+
+router.get('/profile', verify, async (req, res) => {
+
+    let user = await User.findById(req.user);
+
+    if(!user) return res.status(401).send('user not found');
+
+    return res.send({username: user.username});
+
 
 })
 

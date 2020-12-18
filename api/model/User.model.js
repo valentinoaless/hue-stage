@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Set = require('./Set.model').SetSchema
 
 const userSchema = new mongoose.Schema({
     username: { 
@@ -22,7 +23,11 @@ const userSchema = new mongoose.Schema({
     date: { 
         type: Date, 
         default: Date.now
+    },
+    sets: { 
+        type: [mongoose.ObjectId],
+        default: []
     }
 })
 
-module.exports = mongoose.model('User', userSchema, 'Users');
+module.exports = mongoose.model('User', userSchema, 'users');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { set, currentEditorState } from './data'
 import StateCreator from './StateCreator.jsx'
@@ -6,10 +6,13 @@ import './Set.css'
 import { bridge } from './bridge'
 import SetControls from './set-controls.jsx'
 import { State } from './state-model'
+import { SetContext } from '../SetContext'
+import styled, {keyframes} from 'styled-components';
 
-// create a test button to test hue lights
 
 function Set() {
+
+  let {globalSetData, setGlobalSetData} = useContext(SetContext);
 
   let setRef = set;
   let [lines, setLines] = useState([...set])
@@ -94,7 +97,8 @@ function Set() {
     const style = {
       display: 'flex',
       borderBottom: '1px solid #2f2f2f',
-      backgroundColor: '#222'
+      backgroundColor: '#222',
+      borderRadius: '20px'
     }
 
     const gridStyle = {
@@ -122,6 +126,7 @@ function Set() {
   const LineStack = () => {
 
     console.log(lines);
+
 
     return lines.map((light, index) => {
 
@@ -197,7 +202,13 @@ function Set() {
 
 
   return (
-    <div className="App">
+    <div className="Set">
+    <Background>
+      <Modal>
+        <div></div>
+      </Modal>
+    </Background>
+
     <DragDropContext onDragEnd={onDragEnd}>
 
       <SetControls />
@@ -221,4 +232,49 @@ function Set() {
 
 
 export default Set;
+
+
+let Background = styled.div`
+  overflow: hidden;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+`
+
+let modalAnimation = keyframes`
+    0% {
+        opacity: 0%;
+        transform: translateY(400px);
+    }
+    100% {
+        opacity: 100%;
+        transform: translateY(0px);
+    }
+`
+
+let Modal = styled.div`
+    animation-name: ${modalAnimation};
+    animation-duration: 300ms;
+    animation-iteration-count: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    & > * {
+        position: relative;
+        width: 30vw;
+        height: 25vh;
+        border-radius: 10px;
+        background-color: #222;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+    }
+` 
 

@@ -27,7 +27,9 @@ const Login = () => {
         await axios.post('http://localhost:5000/api/user/login', credentials)
             .then(res => {
                 localStorage.setItem("user_auth_token", res.data);
-                setUser({loggedIn: true});
+                setUser({
+                    ...user,
+                    loggedIn: true});
                 history.push('/dashboard');
                 return null;
             }).catch(err => {

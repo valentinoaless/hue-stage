@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import styled from 'styled-components';
 import { set } from './data'
 import { bridge } from './bridge'
+import { SetContext } from '../SetContext';
 
 // play button
 // pause button
@@ -37,6 +38,9 @@ let beatValue = 4; // 1/4 (quarter)
 
 const SetControls = () => {
     
+    let {globalSetData, setGlobalSetData} = useContext(SetContext);
+
+    console.log(globalSetData);
 
     let stopButtonPressed = {state: false};
     let [stopped, setStopped] = useState(false);
@@ -120,11 +124,34 @@ const SetControls = () => {
 
     }
 
+    const handleChange = (e) => {
+        
+        if(e.target.name === "tempo") {
+            if(e.target.value >= 60 && e.target.value <= 240) {
+                globalSetData.tempo = Number(e.target.value);
+                console.log(e.target.value);
+            } else {
+                e.target.value = 120;
+            }
+
+        }
+
+    }
+
 
     return (
-        <Controls >
-            <Play playing={playing} onClick={play}>&#xFE0E;&#9654;&#xFE0E;</Play>
-            <Stop onClick={stop}/>
+        <Controls>
+            {
+                /* globalSetData.timeMethod === "tempo" ?
+                <Tempo></Tempo>
+                :
+                <></> */
+            }
+            <Tempo name="tempo" type="number" min="60" max="240" defaultValue={globalSetData?.tempo || 120} onBlur={handleChange}/>
+            <div>
+                <Play playing={playing} onClick={play}>&#xFE0E;&#9654;&#xFE0E;</Play>
+                <Stop onClick={stop}/>
+            </div>
         </Controls>
     );
 };
@@ -136,6 +163,14 @@ const Controls = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: 15px;
+    background-color: #222;
+    margin: 5px;
+    & > * {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+    }
 `
 
 const Play = styled.div`
@@ -161,5 +196,18 @@ const Stop = styled.div`
     }
     :active {
         background-color: darkred;
+    }
+`
+
+const Tempo = styled.input`
+    width: 80px;
+    height: 20px;
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    background-color: #222;
+    padding: 20px;
+    &:focus {
+        outline: none;
     }
 `

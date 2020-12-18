@@ -2,15 +2,22 @@ import React, { useContext, useState, useEffect } from 'react';
 import styled, {keyframes} from 'styled-components';
 import Nav from '../Nav/Nav';
 import { UserContext } from '../UserContext';
+import { SetContext } from '../SetContext';
 import { useHistory, Link } from 'react-router-dom';
 import AddIcon from '../resources/add-black-18dp.svg';
 import CloseIcon from '../resources/clear-black-18dp.svg';
 import EditIcon from '../resources/create-black-18dp.svg';
+import axios from 'axios';
+
 
 
 const Dashboard = () => {
 
     let {user, setUser} = useContext(UserContext);
+
+    let {globalSetData, setGlobalSetData} = useContext(SetContext);
+
+    let [loading, setLoading] = useState(false);
 
     let [showDialog, setShowDialog] = useState(false);
 
@@ -21,6 +28,23 @@ const Dashboard = () => {
     let history = useHistory();
 
     if(!user.loggedIn) history.push('/auth/login');
+
+    let loadUser = async () => {
+
+        await axios.get('http://localhost:5000/api/user/profile', {
+            headers: {auth_token: localStorage.getItem("user_auth_token")}
+        }).then(res => {
+            setUser({
+                ...user, 
+                username: res.data.username
+            })
+        })
+
+    }
+
+    useEffect(() => {
+        loadUser();
+    },[]);
 
     let handleChange = (e) => {
 
@@ -33,8 +57,41 @@ const Dashboard = () => {
 
     }
 
-    let generateSet = () => {
-        history.push('/dashboard/set');
+    let generateSet = async () => {
+
+        let set = {};
+
+        let loading = true;
+
+        await axios.post('http://localhost:5000/api/user/set/newset', 
+        {
+            setName: newSetName.name,
+            timeMethod: timingMethod,
+        }, 
+        {
+            headers: {auth_token: localStorage.getItem("user_auth_token")}
+        }).then(res => {
+           
+            set.creator = res.data.creator;
+            set.name = res.data.name;
+            set.timeMethod = res.data.timeMethod;
+            set.url = res.data.url;
+            set._id = res.data._id;
+            set.states = res.data.states;
+
+        }).catch(err => {
+            console.log(err);
+        })
+
+        if(set) {
+            history.push(`/set/${set.url}`);
+        } 
+        
+        loading = false;
+
+        setGlobalSetData(set);
+
+        // history.push('/dashboard/set');
     }
 
     let SetDialog = () => {
@@ -62,7 +119,7 @@ const Dashboard = () => {
         <div>
             <Nav />
             <Page>
-                <Welcome>hi, <Link to="/account/user">parishilton</Link></Welcome>
+                <Welcome>hi, <Link to="/account/user">{user.username}</Link></Welcome>
                 <Header>dashboard</Header>
                 <Sets> 
                     <AddSet onClick={() => {setShowDialog(true)}}>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { set } from './data';
 import Light from './state-model';
 
-let bridgeUser = "8SdmTqNxhLaIgHo28qv5JCeAjbsby0Hl7W9-jmKI";
+let bridgeUser = "";
 let bridgeIp = '';
 
 const getBridgeIP = () => {
@@ -68,17 +68,8 @@ export const bridge = {
     send(light, state) {
         axios.put(`http://${bridgeIp}/api/${bridgeUser}/lights/${light}/state`, state)
         .then(res => {
-            //console.log(res);
         })
     },
-
-    // sendMultiple() {
-    //   axios.put(`http://${bridgeIp}/api/${bridgeUser}/lights/${light}/state`, state)
-    //     .then(res => {
-    //         console.log(res);
-    //     })
-
-    // },
 
     getLights: async () => {
 
